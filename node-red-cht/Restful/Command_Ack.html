@@ -1,0 +1,128 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Command_Ack',{
+        category: 'CHT',
+        color: '#fbea53',
+        defaults: {
+            name: {value:""},
+            APIkey: {value:"", required:true},
+            operation: {value:"SendSensorCommand", required:true},
+            device_id: {value:"", required:true},
+            sensor_id: {value:""},
+            save_to_database: {value:"true"},
+            time: {value:""},
+            start_time: {value:""},
+            end_time: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "IoTSmartPlatform.png",
+        align: "right",
+        label: function() {
+            return this.name || this.operation;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Command_Ack">
+    <style scoped>
+        .hiddenAttrs {display:none;}
+        .visibleAttrs {display:block;}
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name (optional)">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-APIkey"><i class="icon-tag"></i> APIkey</label>
+        <input type="text" id="node-input-APIkey" placeholder="APIkey (Project Key or Device Key)">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_id"><i class="fa fa-tag"></i> Device ID</label>
+        <input type="text" id="node-input-device_id" placeholder="Device ID"></input>
+    </div> 
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+
+            <option value="SendSensorCommand"> Send Sensor Command</option>
+
+            <option value="ReadSensorCommand"> Read Sensor Command</option>
+
+            <option value="ReadDeviceCommand"> Read Device Command</option>
+
+            <option value="DeleteSensorCommand"> Delete Sensor Command</option>
+
+            <option value="SendSensorAck"> Send Sensor Ack</option>
+
+            <option value="ReadSensorAck"> Read Sensor Ack</option>
+
+            <option value="ReadDeviceAck">Read Device Ack</option>
+
+            <option value="DeleteSensorAck"> Delete Sensor Ack</option>
+
+        </select>
+    </div>
+    <hr/>
+    <div id="AttrHolder">
+        <div class="form-row" id='sensor_id' class="hiddenAttrs">
+            <label for="node-input-sensor_id"><i class="fa fa-tag"></i> Sensor ID</label>
+            <input type="text" id="node-input-sensor_id" placeholder="Sensor ID"></input>
+        </div>  
+        <div class="form-row" id='save_to_database' class='hiddenAttrs'>
+            <label for="node-input-save_to_database"><i class="fa fa-wrench"></i> Save to Database</label>
+            <select type="text" id="node-input-save_to_database">
+
+                <option value="true">True</option>
+            
+                <option value="false">False</option>
+
+            </select>
+        </div>
+        <div class="form-row" id='time' class='hiddenAttrs'>
+            <label for="node-input-time"><i class="fa fa-tag"></i>Time</label>
+            <input type="text" id="node-input-time" placeholder="Time (optional)"></input>
+        </div>
+        <div class="form-row" id='start_time' class='hiddenAttrs'>
+            <label for="node-input-start_time"><i class="fa fa-tag"></i>Start Time</label>
+            <input type="text" id="node-input-start_time" placeholder="Start Time (optional)"></input>
+        </div>
+        <div class="form-row" id='end_time' class='hiddenAttrs'>
+            <label for="node-input-end_time"><i class="fa fa-tag"></i>End Time</label>
+            <input type="text" id="node-input-end_time" placeholder="End Time (optional)"></input>
+        </div>
+    </div>
+</div>
+    <script>
+        var nodeOpts={
+            SendSensorCommand:[
+                '#sensor_id', '#save_to_database', '#time'
+            ],
+            ReadSensorCommand:[
+                '#sensor_id', '#start_time', '#end_time'
+            ],
+            DeleteSensorCommand:[
+                '#sensor_id', '#start_time', '#end_time'
+            ],
+            SendSensorAck:[
+                '#sensor_id', '#save_to_database', '#time'
+            ],
+            ReadSensorAck:[
+                '#sensor_id', '#start_time', '#end_time'
+            ],
+            DeleteSensorAck:[
+                '#sensor_id', '#start_time', '#end_time'
+            ]
+        };
+        $('#node-input-operation').on('change',function(){
+            $('#AttrHolder').children().addClass('hiddenAttrs').removeClass('visibleAttrs');
+                if (nodeOpts[this.value])
+                    $(nodeOpts[this.value].join()).addClass('visibleAttrs').removeClass('hiddenAttrs');
+         });
+    </script>
+</script>
+
+<script type="text/x-red" data-help-name="Command_Ack">
+    <p>A simple node that converts the message payloads into all lower-case characters</p>
+</script>

@@ -1,0 +1,526 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="MqttSubscribe">
+    <style scoped>
+        .hiddenAttrs {display:none;}
+        .visibleAttrs {display:block;}
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-broker"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-broker">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_id"><i class="fa fa-tasks"></i> Device ID</label>
+        <input type="text" id="node-input-device_id" placeholder="Device ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sensor_id"><i class="fa fa-tasks"></i> Sensor ID</label>
+        <input type="text" id="node-input-sensor_id" placeholder="Sensor ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dataType"><i class="fa fa-wrench"></i> Data Type</label>
+        <select type="text" id="node-input-dataType">
+            
+            <option value="rawdata"> Rawdata</option>
+
+            <option value="csv"> Rawdata csv</option>
+        
+            <option value="command"> Command</option>
+        
+            <option value="ack"> Ack</option>
+
+            <option value="heartbeat"> HeartBeat</option>
+
+            <option value="SubscribeConfiguration"> Subscribe Configuration</option>
+
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-qos"><i class="fa fa-empire"></i> QoS</label>
+        <select id="node-input-qos" style="width:125px !important">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <hr/>
+    <div id="AttrHolder">
+        <div class="form-row" id="product_code" class="hiddenAttrs">
+            <label for="node-input-product_code"><i class="fa fa-tasks"></i> Product Code</label>
+            <input type="text" id="node-input-product_code" placeholder="Product">
+        </div>
+        <div class="form-row" id="serial_id" class="hiddenAttrs">
+            <label for="node-input-serial_id"><i class="fa fa-tasks"></i> Serial ID</label>
+            <input type="text" id="node-input-serial_id" placeholder="Serial ID">
+        </div>
+    </div>
+    <script>
+        var nodeOpts={
+            SubscribeConfiguration:[
+                '#product_code', '#serial_id'
+            ]
+        };
+        $('#node-input-dataType').on('change',function(){
+            $('#AttrHolder').children().addClass('hiddenAttrs').removeClass('visibleAttrs');
+            if (nodeOpts[this.value]){
+                $(nodeOpts[this.value].join()).addClass('visibleAttrs').removeClass('hiddenAttrs');
+            }
+        });
+    </script>
+</script>
+
+<script type="text/x-red" data-help-name="MqttSubscribe">
+<p>Connects to a MQTT broker and subscribes to messages from the specified topic.</p>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+       <dt>payload <span class="property-type">string | buffer</span></dt>
+       <dd>a string unless detected as a binary buffer.</dd>
+       <dt>topic <span class="property-type">string</span></dt>
+       <dd>the MQTT topic, uses / as a heirarchy separator.</dd>
+       <dt>qos <span class="property-type">number</span> </dt>
+       <dd>0, fire and forget - 1, at least once - 2, once and once only.</dd>
+       <dt>retain <span class="property-type">boolean</span></dt>
+       <dd>true indicates the message was retained and may be old.</dd>
+    </dl>
+    <h3>Details</h3>
+    The subscription topic can include MQTT wildcards, + for one level, # for multiple levels.</p>
+    <p>This node requires a connection to a MQTT broker to be configured. This is configured by clicking
+    the pencil icon.</p>
+    <p>Several MQTT nodes (in or out) can share the same broker connection if required.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('MqttSubscribe',{
+        category: 'CHT',
+        defaults: {
+            name: {value:""},
+            // topic: {value:"",required:true,validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/)},
+            qos: {value: "2"},
+            broker: {type: "CHT_MQTT_Broker", required:true},
+            device_id: {value: ""},
+            sensor_id: {value: ""},
+            dataType: {value: "rawdata"},
+            product_code: {value: ""},
+            serial_id: {value: ""}
+        },
+        color:"#d8bfd8",
+        inputs:0,
+        outputs:1,
+        icon: "IoTSmartPlatform.png",
+        label: function() {
+            return this.name||"MQTT Subscribe - " + this.dataType;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            if (this.qos === undefined) {
+                $("#node-input-qos").val("2");
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="MqttPublish">
+    <style scoped>
+        .hiddenAttrs {display:none;}
+        .visibleAttrs {display:block;}
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-broker"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-broker">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dataType"><i class="fa fa-wrench"></i> Data Type</label>
+        <select type="text" id="node-input-dataType">
+
+            <option value="rawdata"> Rawdata</option>
+
+            <option value="command"> Command</option>
+
+            <option value="ack"> Ack</option>
+
+            <option value="heartbeat"> HeartBeat</option>
+
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-qos"><i class="fa fa-empire"></i> QoS</label>
+        <select id="node-input-qos" style="width:125px !important">
+            <option value=""></option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+        &nbsp;&nbsp;<i class="fa fa-history"></i>&nbsp;Retain &nbsp;<select id="node-input-retain" style="width:125px !important">
+            <option value=""></option>
+            <option value="false"> False</option>
+            <option value="true"> True</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <hr/>
+    <div id="AttrHolder">
+        <div class="form-row" id="device_id">
+            <label for="node-input-device_id"><i class="fa fa-tasks"></i> Device ID</label>
+            <input type="text" id="node-input-device_id" placeholder="Device ID">
+        </div>
+        <div class="form-row" id="sensor_id">
+            <label for="node-input-sensor_id"><i class="fa fa-tasks"></i> Sensor ID</label>
+            <input type="text" id="node-input-sensor_id" placeholder="Sensor ID">
+        </div>
+        <div class="form-row" id="time" class="hiddenAttrs">
+            <label for="node-input-time"><i class="fa fa-tag"></i> Time</label>
+            <input type="text" id="node-input-time" placeholder="Time (optional)"></input>
+        </div>
+        <div class="form-row" id="save_to_database" class="hiddenAttrs">
+            <label for="node-input-save_to_database"><i class="fa fa-wrench"></i> Save to Database</label>
+            <select type="text" id="node-input-save_to_database">
+
+                <option value="true">True</option>
+            
+                <option value="false">False</option>
+
+            </select>
+        </div>
+        <div class="form-row" id='lat' class='hiddenAttrs'>
+            <label for="node-input-lat"><i class="fa fa-tag"></i> Latitude</label>
+            <input type="text" id="node-input-lat" placeholder="Latitude (optional)"></input>
+        </div>
+        <div class="form-row" id='lon' class='hiddenAttrs'>
+            <label for="node-input-lon"><i class="fa fa-tag"></i> Longitude</label>
+            <input type="text" id="node-input-lon" placeholder="Longitude (optional)"></input>
+        </div>
+        <div class="form-row" id='pulse' class="hiddenAttrs">
+            <label for="node-input-pulse"><i class="fa fa-tag"></i> Pulse</label>
+            <input type="text" id="node-input-pulse" placeholder="Pulse"></input>
+        </div>
+    </div>
+    <script>
+        var nodeOpts={
+            rawdata:[
+                '#device_id', '#sensor_id', '#time', '#save_to_database', '#lat', '#lon'
+            ],
+            command:[
+                '#device_id', '#sensor_id', '#time', '#save_to_database', '#lat', '#lon'
+            ],
+            ack:[
+                '#device_id', '#sensor_id', '#time', '#save_to_database', '#lat', '#lon'
+            ],
+            heartbeat:[
+                '#device_id', '#pulse'
+            ]
+        };
+        $('#node-input-dataType').on('change',function(){
+            $('#AttrHolder').children().addClass('hiddenAttrs').removeClass('visibleAttrs');
+            if (nodeOpts[this.value]){
+                $(nodeOpts[this.value].join()).addClass('visibleAttrs').removeClass('hiddenAttrs');
+            }
+        });
+    </script>
+</script>
+
+<script type="text/x-red" data-help-name="MqttPublish">
+    <p>Connects to a MQTT broker and publishes messages.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+       <dt>payload <span class="property-type">string | buffer</span></dt>
+       <dd> most users prefer simple text payloads, but binary buffers can also be published.</dd>
+
+       <dt class="optional">topic <span class="property-type">string</span></dt>
+       <dd> the MQTT topic to publish to.</dd>
+
+       <dt class="optional">qos <span class="property-type">number</span></dt>
+       <dd>0, fire and forget - 1, at least once - 2, once and once only. Default 0.</dd>
+
+       <dt class="optional">retain <span class="property-type">boolean</span></dt>
+       <dd>set to true to retain the message on the broker. Default false.</dd>
+    </dl>
+    <h3>Details</h3>
+    <code>msg.payload</code> is used as the payload of the published message.
+    If it contains an Object it will be converted to a JSON string before being sent.
+    If it contains a binary Buffer the message will be published as-is.</p>
+    <p>The topic used can be configured in the node or, if left blank, can be set by <code>msg.topic</code>.</p>
+    <p>Likewise the QoS and retain values can be configured in the node or, if left
+    blank, set by <code>msg.qos</code> and <code>msg.retain</code> respectively. To clear a previously
+    retained topic from the broker, send a blank message to that topic with the retain flag set.</p>
+    <p>This node requires a connection to a MQTT broker to be configured. This is configured by clicking
+    the pencil icon.</p>
+    <p>Several MQTT nodes (in or out) can share the same broker connection if required.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('MqttPublish',{
+        category: 'CHT',
+        defaults: {
+            name: {value:""},
+            // topic: {value:""},
+            qos: {value:"0"},
+            retain: {value: ""},
+            broker: {type: "CHT_MQTT_Broker", required:true},
+            device_id: {value: "", required:true},
+            sensor_id: {value: ""},
+            dataType: {value: "rawdata"},
+            time: {value:""},
+            save_to_database: {value:"true"},
+            lat: {value:""},
+            lon: {value:""},
+            pulse: {value: "1000"}
+        },
+        color:"#d8bfd8",
+        inputs:1,
+        outputs:0,
+        icon: "IoTSmartPlatform.png",
+        align: "right",
+        label: function() {
+            return this.name||"MQTT Publish - " + this.dataType;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="CHT_MQTT_Broker">
+    <div class="form-row">
+        <ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-CHT_MQTT_Broker-tabs"></ul>
+    </div>
+    <div id="node-config-CHT_MQTT_Broker-tabs-content" style="min-height: 170px;">
+        <div id="CHT_MQTT_Broker-tab-connection" style="display:none">
+            <div class="form-row node-input-broker">
+                <label for="node-config-input-broker"><i class="fa fa-globe"></i> Server</label>
+                <input class="input-append-left" type="text" id="node-config-input-broker" style="width:40%;" data-i18n="[placeholder]mqtt.label.example">
+                <label for="node-config-input-port" style="margin-left:20px; width:43px; "> Port</label>
+                <input type="text" id="node-config-input-port" placeholder="Port" style="width:55px">
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-usetls" style="width: auto">Enable secure (SSL/TLS) connection</label>
+                <div id="node-config-row-tls" class="hide">
+                    <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tls">TLS Configuration</label><input style="width: 300px;" type="text" id="node-config-input-tls">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-clientid"><i class="fa fa-tag"></i> Client ID</label>
+                <input type="text" id="node-config-input-clientid" data-i18n="[placeholder]mqtt.placeholder.clientid">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-keepalive" style="width: auto"><i class="fa fa-clock-o"></i> Keep alive time (s)</label>
+                <input type="text" id="node-config-input-keepalive" style="width: 50px">
+                <input type="checkbox" id="node-config-input-cleansession" style="margin-left: 30px; height: 1em;display: inline-block; width: auto; vertical-align: middle;">
+                <label for="node-config-input-cleansession" style="width: auto;">Use clean session</label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-compatmode" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-compatmode" style="width: auto;">Use legacy MQTT 3.1 support</label>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-APIkey"><i class="fa fa-user"></i> APIkey</label>
+                <input type="text" id="node-config-input-APIkey">
+            </div>
+        </div>
+        <!-- <div id="CHT_MQTT_Broker-tab-security" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-user"><i class="fa fa-user"></i> Username</label>
+                <input type="text" id="node-config-input-user">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+                <input type="password" id="node-config-input-password">
+            </div>
+        </div> -->
+        <div id="CHT_MQTT_Broker-tab-birth" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-birthTopic"><i class="fa fa-tasks"></i> Topic</label>
+                <input type="text" id="node-config-input-birthTopic" placeholder="Leave blank to disable birth message">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-birthQos"><i class="fa fa-empire"></i> QoS</label>
+                <select id="node-config-input-birthQos" style="width:125px !important">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+                &nbsp;&nbsp;<i class="fa fa-history"></i>&nbsp;Retain &nbsp;<select id="node-config-input-birthRetain" style="width:125px !important">
+                    <option value="false">false</option>
+                    <option value="true">true</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-birthPayload"><i class="fa fa-envelope"></i> Payload</label>
+                <input type="text" id="node-config-input-birthPayload" placeholder="Payload">
+            </div>
+        </div>
+        <div id="CHT_MQTT_Broker-tab-will" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-willTopic"><i class="fa fa-tasks"></i> Topic</label>
+                <input type="text" id="node-config-input-willTopic" placeholder="Leave blank to disable will message">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-willQos"><i class="fa fa-empire"></i> QoS</label>
+                <select id="node-config-input-willQos" style="width:125px !important">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+                &nbsp;&nbsp;<i class="fa fa-history"></i>&nbsp;Retain &nbsp;<select id="node-config-input-willRetain" style="width:125px !important">
+                    <option value="false">false</option>
+                    <option value="true">true</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-willPayload"><i class="fa fa-envelope"></i> Payload</label>
+                <input type="text" id="node-config-input-willPayload" placeholder="Payload">
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="CHT_MQTT_Broker">
+    <p>A minimum MQTT broker connection requires only a broker server address to be added to the default configuration.</p>
+    <p>To secure the connection with SSL/TLS, a TLS Configuration must also be configured and selected.</p>
+    <p>If you create a Client ID it must be unique to the broker you are connecting to.</p>
+    <p>For more information about MQTT see the <a href="http://www.eclipse.org/paho/" target="_blank">Eclipse Paho</a> site.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('CHT_MQTT_Broker',{
+        category: 'config',
+        defaults: {
+            broker: {value:"iot.cht.com.tw",required:true},
+            port: {value:1883,required:true,validate:RED.validators.number()},
+            tls: {type:"tls-config",required: false},
+            clientid: {value:"", validate: function(v) {
+                    if ($("#node-config-input-clientid").length) {
+                        // Currently editing the node
+                        return $("#node-config-input-cleansession").is(":checked") || (v||"").length > 0;
+                    } else {
+                        return (this.cleansession===undefined || this.cleansession) || (v||"").length > 0;
+                    }
+                }},
+            usetls: {value: false},
+            verifyservercert: { value: false},
+            compatmode: { value: true},
+            keepalive: {value:60,validate:RED.validators.number()},
+            cleansession: {value: true},
+            willTopic: {value:""},
+            willQos: {value:"0"},
+            willRetain: {value:false},
+            willPayload: {value:""},
+            birthTopic: {value:""},
+            birthQos: {value:"0"},
+            birthRetain: {value:false},
+            birthPayload: {value:""},
+            APIkey: {value: ""}
+        },
+        credentials: {
+            user: {type:"text"},
+            password: {type: "password"}
+        },
+        label: function() {
+            var b = this.broker;
+            if (b === "") { b = "undefined"; }
+            return (this.clientid?this.clientid+"@":"")+b+":"+this.port;
+        },
+        oneditprepare: function () {
+            var tabs = RED.tabs.create({
+                id: "node-config-CHT_MQTT_Broker-tabs",
+                onchange: function(tab) {
+                    $("#node-config-CHT_MQTT_Broker-tabs-content").children().hide();
+                    $("#" + tab.id).show();
+                }
+            });
+            tabs.addTab({
+                id: "CHT_MQTT_Broker-tab-connection",
+                label: "Connection"
+            });
+            // tabs.addTab({
+            //     id: "CHT_MQTT_Broker-tab-security",
+            //     label: "Security"
+            // });
+            tabs.addTab({
+                id: "CHT_MQTT_Broker-tab-birth",
+                label: "Birth Message"
+            });
+            tabs.addTab({
+                id: "CHT_MQTT_Broker-tab-will",
+                label: "Will Message"
+            });
+            setTimeout(function() { tabs.resize(); },0);
+            if (typeof this.cleansession === 'undefined') {
+                this.cleansession = true;
+                $("#node-config-input-cleansession").prop("checked",true);
+            }
+            if (typeof this.usetls === 'undefined') {
+                this.usetls = false;
+                $("#node-config-input-usetls").prop("checked",false);
+            }
+            if (typeof this.compatmode === 'undefined') {
+                this.compatmode = true;
+                $("#node-config-input-compatmode").prop('checked', true);
+            }
+            if (typeof this.keepalive === 'undefined') {
+                this.keepalive = 15;
+                $("#node-config-input-keepalive").val(this.keepalive);
+            }
+            if (typeof this.willQos === 'undefined') {
+                this.willQos = "0";
+                $("#node-config-input-willQos").val("0");
+            }
+            if (typeof this.birthQos === 'undefined') {
+                this.birthQos = "0";
+                $("#node-config-input-birthQos").val("0");
+            }
+
+            function updateTLSOptions() {
+                if ($("#node-config-input-usetls").is(':checked')) {
+                    $("#node-config-row-tls").show();
+                } else {
+                    $("#node-config-row-tls").hide();
+                }
+            }
+            updateTLSOptions();
+            $("#node-config-input-usetls").on("click",function() {
+                updateTLSOptions();
+            });
+            var node = this;
+            function updateClientId() {
+                if ($("#node-config-input-cleansession").is(":checked")) {
+                    $("#node-config-input-clientid").attr("placeholder",node._("mqtt.placeholder.clientid"));
+                } else {
+                    $("#node-config-input-clientid").attr("placeholder",node._("mqtt.placeholder.clientid-nonclean"));
+                }
+                $("#node-config-input-clientid").change();
+            }
+            setTimeout(updateClientId,0);
+            $("#node-config-input-cleansession").on("click",function() {
+                updateClientId();
+            });
+        },
+        oneditsave: function() {
+            if (!$("#node-config-input-usetls").is(':checked')) {
+                $("#node-config-input-tls").val("");
+            }
+        }
+    });
+</script>

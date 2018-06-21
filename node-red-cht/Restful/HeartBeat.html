@@ -1,0 +1,75 @@
+<script type="text/javascript">
+    RED.nodes.registerType('HeartBeat',{
+        category: 'CHT',
+        color: '#ffb366',
+        defaults: {
+            name: {value:""},
+            APIkey: {value:"", required:true},
+            operation: {value:"PostHeartBeat", required:true},
+            device_id: {value:"", required:true},
+            pulse: {value:"1000"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "IoTSmartPlatform.png",
+        align: "right",
+        label: function() {
+            return this.name || this.operation;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="HeartBeat">
+    <style scoped>
+        .hiddenAttrs {display:none;}
+        .visibleAttrs {display:block;}
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name (optional)">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-APIkey"><i class="icon-tag"></i> APIkey</label>
+        <input type="text" id="node-input-APIkey" placeholder="APIkey (Project Key or Device Key)">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_id"><i class="fa fa-tag"></i> Device ID</label>
+        <input type="text" id="node-input-device_id" placeholder="Device ID"></input>
+    </div> 
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+
+            <option value="PostHeartBeat"> Post Heart Beat</option>
+
+            <option value="GetHeartBeat"> Get Heart Beat</option>
+
+        </select>
+    </div>
+    <hr/>
+    <div id="AttrHolder">
+        <div class="form-row" id='pulse' class="hiddenAttrs">
+            <label for="node-input-pulse"><i class="fa fa-tag"></i> Pulse</label>
+            <input type="text" id="node-input-pulse" placeholder="Pulse"></input>
+        </div>
+    </div>
+</div>
+    <script>
+        var nodeOpts={
+            PostHeartBeat:[
+                '#pulse'
+            ]
+        };
+        $('#node-input-operation').on('change',function(){
+            $('#AttrHolder').children().addClass('hiddenAttrs').removeClass('visibleAttrs');
+                if (nodeOpts[this.value])
+                    $(nodeOpts[this.value].join()).addClass('visibleAttrs').removeClass('hiddenAttrs');
+         });
+    </script>
+</script>
+
+<script type="text/x-red" data-help-name="HeartBeat">
+    <p>A simple node that converts the message payloads into all lower-case characters</p>
+</script>

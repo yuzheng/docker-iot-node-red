@@ -1,0 +1,56 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Device_Sensor',{
+        category: 'CHT',
+        color: '#fbea53',
+        defaults: {
+            name: {value:""},
+            resource: {value:"/v1/device"},
+            APIkey: {value:"PK3BYE0KFKUZWHUR5Z"},
+            operation: {value:"GET"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "IoTSmartPlatform.png",
+        align: "right",
+        label: function() {
+            return "Device & Sensor - " + this.name;
+        }
+    });
+</script>
+<!--<script src="https://code.jquery.com/jquery-2.2.4.js"></script> -->
+
+
+<script type="text/x-red" data-template-name="Device_Sensor">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+	
+	<div class="form-row">
+        <label for="node-input-resource"><i class="icon-tag"></i> Resource</label>
+		<input type="text" id="node-input-resource" placeholder="url">
+    </div>
+
+	<div class="form-row">
+        <label for="node-input-APIkey"><i class="icon-tag"></i> APIkey</label>
+		<input type="text" id="node-input-APIkey" placeholder="APIkey">
+    </div>	
+	<div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+        
+            <option value="GET">Get</option>
+        
+            <option value="POST">Post</option>
+        
+            <option value="PUT">Put</option>
+
+            <option value="DELETE">Delete</option>
+
+        </select>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="Device_Sensor">
+    <p>A simple node that converts the message payloads into all lower-case characters</p>
+</script>

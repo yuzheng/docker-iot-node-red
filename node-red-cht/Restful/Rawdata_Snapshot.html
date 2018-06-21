@@ -1,0 +1,176 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Rawdata_Snapshot',{
+        category: 'CHT',
+        color: '#fbea53',
+        defaults: {
+            name: {value:""},
+            APIkey: {value:"", required:true},
+            operation: {value:"SendSensorData", required:true},
+            device_id: {value:"", required:true},
+            sensor_id: {value:"", required:true},
+            save_to_database: {value:"true"},
+            time: {value:""},
+            start_time: {value:""},
+            end_time: {value:""},
+            interval: {value:""},
+            raw: {value:"false"},
+            option: {value:""},
+            snapshot_id: {value:""},
+            snapshot_value: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "IoTSmartPlatform.png",
+        align: "right",
+        label: function() {
+            return this.name || this.operation;
+        }
+    });
+</script>
+<!--<script src="https://code.jquery.com/jquery-2.2.4.js"></script> -->
+
+
+<script type="text/x-red" data-template-name="Rawdata_Snapshot">
+    <style scoped>
+        .hiddenAttrs {display:none;}
+        .visibleAttrs {display:block;}
+    </style>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name (optional)">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-APIkey"><i class="fa fa-tasks"></i> APIkey</label>
+        <input type="text" id="node-input-APIkey" placeholder="APIkey (Project Key or Device Key)">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_id"><i class="fa fa-tasks"></i> Device ID</label>
+        <input type="text" id="node-input-device_id" placeholder="Device ID"></input>
+    </div>
+    <div class="form-row">
+        <label for="node-input-sensor_id"><i class="fa fa-tasks"></i> Sensor ID</label>
+        <input type="text" id="node-input-sensor_id" placeholder="Sensor ID"></input>
+    </div>  
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-wrench"></i> Operation</label>
+        <select type="text" id="node-input-operation">
+            
+            <option value="SendSensorData">Send Sensor Data</option>
+
+            <option value="ReadSensorData">Read Sensor Data</option>
+        
+            <option value="ReadStatisticalSensorData">Read Statistical Sensor Data</option>
+        
+            <option value="DeleteSensorData">Delete Sensor Data</option>
+
+            <option value="DeleteSnapshot">Delete Sensor Snapshot</option>
+
+            <option value="UploadSnapshot">Upload A Snapshot</option>
+
+            <option value="ReadLatestSnapshotInformation">Read the Latest Information of Snapshot</option>
+
+            <option value="DownloadLatestSnapshot">Download the Latest Snapshot</option>
+
+            <option value="DownloadSnapshotByID">Download Snapshot By ID</option>
+
+        </select>
+    </div>
+    <hr/>
+    <div id="AttrHolder">
+        <div class="form-row" id='save_to_database' class='hiddenAttrs'>
+            <label for="node-input-save_to_database"><i class="fa fa-wrench"></i> Save to Database</label>
+            <select type="text" id="node-input-save_to_database">
+
+                <option value="true">True</option>
+            
+                <option value="false">False</option>
+
+            </select>
+        </div>
+        <div class="form-row" id='time' class='hiddenAttrs'>
+            <label for="node-input-time"><i class="fa fa-tag"></i> Time</label>
+            <input type="text" id="node-input-time" placeholder="Time (optional)"></input>
+        </div>
+        <div class="form-row" id='start_time' class='hiddenAttrs'>
+            <label for="node-input-start_time"><i class="fa fa-tag"></i> Start Time</label>
+            <input type="text" id="node-input-start_time" placeholder="Start Time (optional)"></input>
+        </div>
+        <div class="form-row" id='end_time' class='hiddenAttrs'>
+            <label for="node-input-end_time"><i class="fa fa-tag"></i> End Time</label>
+            <input type="text" id="node-input-end_time" placeholder="End Time (optional)"></input>
+        </div>
+        <div class="form-row" id='interval' class='hiddenAttrs'>
+            <label for="node-input-interval"><i class="fa fa-tag"></i> Interval</label>
+            <input type="text" id="node-input-interval" placeholder="Interval (optional)"></input>
+        </div>
+        <div class="form-row" id='raw' class='hiddenAttrs'>
+            <label for="node-input-raw"><i class="fa fa-wrench"></i> Raw</label>
+            <select type="text" id="node-input-raw">
+
+                <option value="true">True</option>
+            
+                <option value="false">False</option>
+
+            </select>
+        </div>
+        <div class="form-row" id='option' class='hiddenAttrs'>
+            <label for="node-input-option"><i class="fa fa-wrench"></i> Option</label>
+            <select type="text" id="node-input-option">
+
+                <option value="strict">Strict</option>
+            
+                <option value="">None</option>
+
+            </select>
+        </div>
+        <div class="form-row" id='snapshot_id' class='hiddenAttrs'>
+            <label for="node-input-snapshot_id"><i class="fa fa-tag"></i> Snapshot ID</label>
+            <input type="text" id="node-input-snapshot_id" placeholder="Snapshot ID"></input>
+        </div>
+        <div class="form-row" id='snapshot_value' class='hiddenAttrs'>
+            <label for="node-input-snapshot_value"><i class="fa fa-tag"></i> Value</label>
+            <input type="text" id="node-input-snapshot_value" placeholder="Value"></input>
+        </div>
+    </div>
+    <script>
+        var nodeOpts={
+            SendSensorData:[
+                '#save_to_database', '#time'
+            ],
+            ReadSensorData:[
+                '#start_time', '#end_time'
+            ],
+            ReadStatisticalSensorData:[
+                '#start_time', '#end_time',
+                '#interval', '#raw', '#option'
+            ],
+            DeleteSensorData:[
+                '#start_time', '#end_time'
+            ],
+            DeleteSnapshot:[
+                '#start_time', '#end_time'
+            ],
+            ReadLatestSnapshotInformation:[
+                '#start_time', '#end_time'
+            ],
+            DownloadSnapshotByID:[
+                '#snapshot_id'
+            ],
+            UploadSnapshot:[
+                '#snapshot_value'
+            ]
+        };
+        $('#node-input-operation').on('change',function(){
+            $('#AttrHolder').children().addClass('hiddenAttrs').removeClass('visibleAttrs');
+            if (nodeOpts[this.value]){
+                $(nodeOpts[this.value].join()).addClass('visibleAttrs').removeClass('hiddenAttrs');
+            }
+        });
+    </script>
+</script>
+
+<script type="text/x-red" data-help-name="Rawdata_Snapshot">
+    <p>Rawdata &amp; Snap: Provide saving, reading, deleting and statistical service for sensor data.</p>
+</script>
