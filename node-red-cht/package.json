@@ -7,7 +7,6 @@
     "keywords": [ "CHT" ],
     "node-red"     : {
         "nodes": {
-            "Restful" : "Restful/Restful.js",
             "Rawdata_Snapshot" : "Restful/Rawdata_Snapshot.js",
             "Device_Sensor" : "Restful/Command_Ack.js",
             "Registry_Thing": "Restful/Registry_Thing.js",
